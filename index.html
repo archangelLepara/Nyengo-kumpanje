@@ -1,3 +1,4 @@
+
 require("dotenv").config();
 const express = require("express");
 const axios = require("axios");
@@ -5,111 +6,164 @@ const axios = require("axios");
 const app = express();
 app.use(express.json());
 
-/* =========================
-   FLOOD-PRONE AREAS (MW)
-========================= */
-const FLOOD_PRONE = ["Nsanje", "Chikwawa", "Phalombe", "Balaka", "Lower Shire"];
-const SAFE_POINT = { lat: -13.9833, lon: 33.7833 }; // Lilongwe (example safe zone)
+/* ===============================
+   IN-MEMORY USER STORE (DEMO)
+================================ */
+let USERS = [];
 
-/* =========================
-   DISTANCE FUNCTION
-========================= */
+/* ===============================
+   FLOOD-PRONE DISTRICTS (MW)
+================================ */
+const FLOOD_PRONE = [
+  "Nsanje", "Chikwawa", "Phalombe",
+  "Balaka", "Mangochi", "Lower Shire"
+];
+
+/* ===============================
+   SAFE ZONE (Lilongwe HQ)
+================================ */
+const SAFE_ZONE = { lat: -13.9833, lon: 33.7833 };
+
+/* ===============================
+   DISTANCE (KM)
+================================ */
 function distanceKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) *
-    Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) ** 2;
+    Math.sin(dLat/2)**2 +
+    Math.cos(lat1*Math.PI/180) *
+    Math.cos(lat2*Math.PI/180) *
+    Math.sin(dLon/2)**2;
   return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(2);
 }
 
-/* =========================
-   MAIN PAGE (HTML + JS)
-========================= */
-app.get("/", (req, res) => {
-  res.send(`
+/* ===============================
+   FRONTEND (HTML + CSS + JS)
+================================ */
+app.get("/", (_, res) => {
+res.send(`
 <!DOCTYPE html>
 <html>
 <head>
-<title>Malawi Weather & Safety</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malawi Disaster Safety</title>
 <style>
-body { font-family: Arial; padding: 15px; }
-input, button { padding: 10px; width: 100%; margin: 5px 0; }
-.alert { color: red; font-weight: bold; }
+body {
+  font-family: Arial;
+  background: linear-gradient(#0a3d62, #1e3799);
+  color: white;
+  padding: 20px;
+}
+.card {
+  background: white;
+  color: black;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+button {
+  background: #e55039;
+  color: white;
+  border: none;
+  padding: 12px;
+  width: 100%;
+  border-radius: 6px;
+  font-size: 16px;
+}
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+}
+.alert {
+  background: #c0392b;
+  padding: 10px;
+  border-radius: 6px;
+}
+.hidden { display: none; }
 </style>
 </head>
 <body>
 
-<h2>🇲🇼 Malawi Weather & Disaster Safety</h2>
+<h2>🇲🇼 Malawi Disaster Safety System</h2>
 
-<input id="area" placeholder="Enter District / Area">
-<button onclick="checkWeather()">Check Weather</button>
-
-<div id="result"></div>
-<div id="ai"></div>
-
-<h3>🚨 Emergency Numbers</h3>
-<ul>
-<li>👮 Police: <a href="tel:997">997</a></li>
-<li>🚑 Ambulance: <a href="tel:998">998</a></li>
-<li>🚒 Fire: <a href="tel:999">999</a></li>
-</ul>
-
-<h3>🛡️ Sign Up (3 Emergency Contacts)</h3>
-<input id="name" placeholder="Name">
+<div class="card" id="register">
+<h3>Create Account (Required)</h3>
+<input id="name" placeholder="Full Name">
 <input id="email" placeholder="Email">
-<input id="c1" placeholder="Contact 1">
-<input id="c2" placeholder="Contact 2">
-<input id="c3" placeholder="Contact 3">
-<button onclick="signup()">Register</button>
+<input id="c1" placeholder="Family Contact 1">
+<input id="c2" placeholder="Family Contact 2">
+<input id="c3" placeholder="Family Contact 3">
+<button onclick="register()">Create Account</button>
+</div>
+
+<div class="card hidden" id="app">
+<h3>Check Weather Risk</h3>
+<input id="area" placeholder="District / Area">
+<button onclick="checkRisk()">Check Risk</button>
+
+<div id="output"></div>
+<div id="danger" class="hidden"></div>
+</div>
 
 <script>
-async function checkWeather() {
-  const area = document.getElementById("area").value;
+let userEmail = null;
 
-  navigator.geolocation.getCurrentPosition(async pos => {
-    const res = await fetch("/weather", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        area,
-        lat: pos.coords.latitude,
-        lon: pos.coords.longitude
-      })
-    });
-
-    const data = await res.json();
-
-    document.getElementById("result").innerHTML = \`
-      <h3>\${area}</h3>
-      <p>\${data.desc}</p>
-      <p>Temperature: \${data.temp}°C</p>
-      \${data.flood ? "<p class='alert'>⚠ FLOOD RISK</p>" : ""}
-      <p>Distance to safe area: \${data.distance} km</p>
-    \`;
-
-    document.getElementById("ai").innerHTML =
-      "<h3>AI Safety Advice</h3><p>" + data.advice + "</p>";
-  });
-}
-
-async function signup() {
-  await fetch("/signup", {
+async function register() {
+  userEmail = email.value;
+  await fetch("/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       name: name.value,
       email: email.value,
-      c1: c1.value,
-      c2: c2.value,
-      c3: c3.value
+      c1: c1.value, c2: c2.value, c3: c3.value
     })
   });
-  alert("Registered successfully!");
+  document.getElementById("register").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+}
+
+async function checkRisk() {
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const res = await fetch("/risk", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: userEmail,
+        area: area.value,
+        lat: pos.coords.latitude,
+        lon: pos.coords.longitude
+      })
+    });
+    const data = await res.json();
+
+    output.innerHTML = \`
+      <p><b>Weather:</b> \${data.weather}</p>
+      <p><b>Temperature:</b> \${data.temp} °C</p>
+      <p><b>Distance to Safe Zone:</b> \${data.distance} km</p>
+    \`;
+
+    if (data.danger) {
+      danger.classList.remove("hidden");
+      danger.innerHTML = \`
+        <div class="alert">
+        ⚠ <b>DANGER DETECTED</b><br><br>
+        \${data.advice}<br><br>
+        <b>Emergency Numbers:</b><br>
+        Police: <a href="tel:997">997</a><br>
+        Ambulance: <a href="tel:998">998</a><br>
+        Fire: <a href="tel:999">999</a><br><br>
+        <b>Family Contacts:</b><br>
+        \${data.contacts.join("<br>")}
+        </div>
+      \`;
+    } else {
+      danger.classList.add("hidden");
+    }
+  });
 }
 </script>
 </body>
@@ -117,68 +171,70 @@ async function signup() {
 `);
 });
 
-/* =========================
-   WEATHER + AI ENDPOINT
-========================= */
-app.post("/weather", async (req, res) => {
-  const { area, lat, lon } = req.body;
+/* ===============================
+   REGISTER USER
+================================ */
+app.post("/register", (req, res) => {
+  USERS.push(req.body);
+  res.json({ success: true });
+});
 
-  const weather = await axios.get(
+/* ===============================
+   RISK CHECK
+================================ */
+app.post("/risk", async (req, res) => {
+  const user = USERS.find(u => u.email === req.body.email);
+  if (!user) return res.status(403).json({ error: "Not registered" });
+
+  const weatherRes = await axios.get(
     "https://api.openweathermap.org/data/2.5/weather",
     {
       params: {
-        q: area + ",MW",
+        q: req.body.area + ",MW",
         units: "metric",
         appid: process.env.OPENWEATHER_API_KEY
       }
     }
   );
 
-  const flood = FLOOD_PRONE.some(a =>
-    area.toLowerCase().includes(a.toLowerCase())
+  const flood = FLOOD_PRONE.some(d =>
+    req.body.area.toLowerCase().includes(d.toLowerCase())
   );
 
-  const dist = distanceKm(lat, lon, SAFE_POINT.lat, SAFE_POINT.lon);
-
-  const ai = await axios.post(
-    "https://api.openai.com/v1/chat/completions",
-    {
-      model: "gpt-4.1",
-      messages: [{
-        role: "user",
-        content:
-          "Weather: " + weather.data.weather[0].description +
-          ". Flood risk: " + (flood ? "YES" : "NO") +
-          ". Give Malawi safety advice."
-      }]
-    },
-    {
-      headers: {
-        Authorization: "Bearer " + process.env.OPENAI_API_KEY
+  let advice = "";
+  if (flood) {
+    const ai = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4.1",
+        messages: [{
+          role: "user",
+          content:
+            "Flood risk in Malawi. Give urgent safety advice."
+        }]
+      },
+      {
+        headers: {
+          Authorization: "Bearer " + process.env.OPENAI_API_KEY
+        }
       }
-    }
-  );
+    );
+    advice = ai.data.choices[0].message.content;
+  }
 
   res.json({
-    temp: weather.data.main.temp,
-    desc: weather.data.weather[0].description,
-    flood,
-    distance: dist,
-    advice: ai.data.choices[0].message.content
+    weather: weatherRes.data.weather[0].description,
+    temp: weatherRes.data.main.temp,
+    distance: distanceKm(req.body.lat, req.body.lon, SAFE_ZONE.lat, SAFE_ZONE.lon),
+    danger: flood,
+    advice,
+    contacts: [user.c1, user.c2, user.c3]
   });
 });
 
-/* =========================
-   SIGNUP
-========================= */
-app.post("/signup", (req, res) => {
-  console.log("USER REGISTERED:", req.body);
-  res.json({ success: true });
-});
-
-/* =========================
-   START SERVER
-========================= */
+/* ===============================
+   START
+================================ */
 app.listen(process.env.PORT || 5000, () =>
-  console.log("🇲🇼 Malawi Safety App running")
+  console.log("🇲🇼 Malawi Disaster Safety System running")
 );
