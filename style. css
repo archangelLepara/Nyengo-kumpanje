@@ -1,0 +1,4 @@
+body { font-family: Arial, sans-serif; padding: 20px; }
+h1 { color: #1f618d; }
+input, button { padding: 10px; margin: 5px; width: 300px; }
+button { background-color: #1f618d; color: white; border: none; cursor: pointer; }
