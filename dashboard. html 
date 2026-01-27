@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nyengo-Kumpanje Registration</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<h1>Nyengo-Kumpanje Registration</h1>
+<form method="POST">
+    <input type="text" name="name" placeholder="Your Full Name" required><br>
+    <input type="text" name="phone" placeholder="Your Phone Number" required><br>
+    <input type="text" name="district" placeholder="Your District" required><br>
+    <input type="text" name="area" placeholder="Your Area/Village" required><br>
+    <input type="text" name="contact1" placeholder="Emergency Contact 1" required><br>
+    <input type="text" name="contact2" placeholder="Emergency Contact 2" required><br>
+    <input type="text" name="contact3" placeholder="Emergency Contact 3" required><br>
+    <button type="submit">Register</button>
+</form>
+</body>
+</html>
