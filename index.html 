@@ -1,108 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Malawi Smart Agriculture & Disaster System</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nyengo Pa Mpanje</title>
 
 <style>
 
 body{
-font-family: Arial, sans-serif;
 margin:0;
-background:#0b1520;
+font-family:Segoe UI;
 color:white;
+
+background:
+linear-gradient(135deg,#001f3f,#003366,#004080,#0066cc,#228B22);
+
+height:100vh;
 }
 
-/* LOGIN PAGE */
-
-.login-container{
+.login{
 display:flex;
 height:100vh;
 }
 
-.login-left{
+.left{
 flex:1;
 display:flex;
 justify-content:center;
 align-items:center;
-background:#111;
 }
 
-.login-box{
-background:#1a2a3a;
+.right{
+flex:1;
+background:linear-gradient(180deg,#001f3f,#003366,#004080);
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:40px;
+font-weight:bold;
+text-align:center;
+padding:40px;
+}
+
+.box{
+background:rgba(0,0,0,0.4);
 padding:30px;
 border-radius:10px;
-width:300px;
+width:320px;
 }
 
-.login-box input, select{
+input,select{
 width:100%;
 padding:10px;
-margin-top:10px;
-border:none;
+margin:8px 0;
 border-radius:5px;
-}
-
-.login-box button{
-width:100%;
-padding:12px;
-margin-top:15px;
-background:#00c853;
-color:white;
 border:none;
-font-weight:bold;
-cursor:pointer;
-}
-
-.login-right{
-flex:1;
-background:url('malawi.jpg') center/cover no-repeat;
-}
-
-/* DASHBOARD */
-
-.dashboard{
-display:none;
-}
-
-header{
-background:#00c853;
-padding:15px;
-font-size:20px;
-}
-
-.container{
-padding:20px;
-}
-
-.card{
-background:#1a2a3a;
-padding:20px;
-margin-top:15px;
-border-radius:10px;
 }
 
 button{
-padding:10px;
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:5px;
 background:#00c853;
 color:white;
-border:none;
+font-size:16px;
 cursor:pointer;
+}
+
+button:hover{
+background:#009624;
+}
+
+.alt{
+background:#1976d2;
+}
+
+.hidden{
+display:none;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+.safe{
+background:#00c853;
+padding:15px;
+border-radius:5px;
 margin-top:10px;
 }
 
-/* crops */
-
-.crop{
-padding:10px;
-margin:5px;
-background:#263645;
-cursor:pointer;
+.danger{
+background:#d50000;
+padding:15px;
+border-radius:5px;
+margin-top:10px;
 }
 
-.crop:hover{
-background:#00c853;
+.warn{
+background:#ff6d00;
+padding:15px;
+border-radius:5px;
+margin-top:10px;
 }
 
 </style>
@@ -111,22 +113,19 @@ background:#00c853;
 <body>
 
 <!-- LOGIN -->
+<div class="login" id="loginPage">
 
-<div class="login-container" id="loginPage">
+<div class="left">
 
-<div class="login-left">
-
-<div class="login-box">
+<div class="box">
 
 <h2>Login</h2>
 
-<input type="text" id="name" placeholder="Enter your name">
+<input id="name" placeholder="Full Name">
 
-<input type="password" id="password" placeholder="Enter password">
+<input id="password" type="password" placeholder="Password">
 
 <select id="district">
-
-<option value="">Select District</option>
 
 <option>Blantyre</option>
 <option>Lilongwe</option>
@@ -135,9 +134,9 @@ background:#00c853;
 <option>Kasungu</option>
 <option>Mangochi</option>
 <option>Salima</option>
-<option>Nkhotakota</option>
 <option>Karonga</option>
-<option>Nsanje</option>
+<option>Nkhotakota</option>
+<option>Dedza</option>
 
 </select>
 
@@ -147,180 +146,212 @@ background:#00c853;
 
 </div>
 
-<div class="login-right"></div>
+<div class="right">
 
-</div>
+Nyengo Pa Mpanje<br>
 
-<!-- DASHBOARD -->
+<span style="font-size:18px;font-weight:normal">
 
-<div class="dashboard" id="dashboard">
+Tcheru & Mlimi Otchakuka<br>
+Malawi Disaster & Farming Intelligence System
 
-<header>
-Malawi Smart Agriculture & Disaster System
-</header>
-
-<div class="container">
-
-<div class="card">
-<h3>Current Weather</h3>
-<p id="weather"></p>
-<p id="disaster"></p>
-</div>
-
-<div class="card">
-
-<h3>Select Crop</h3>
-
-<div class="crop" onclick="showAdvice('Maize')">Maize</div>
-<div class="crop" onclick="showAdvice('Rice')">Rice</div>
-<div class="crop" onclick="showAdvice('Beans')">Beans</div>
-<div class="crop" onclick="showAdvice('Groundnuts')">Groundnuts</div>
-<div class="crop" onclick="showAdvice('Cassava')">Cassava</div>
-
-</div>
-
-<div class="card">
-
-<h3>Farming Advice</h3>
-<p id="advice">Select crop to see advice</p>
+</span>
 
 </div>
 
 </div>
+
+<!-- HOME -->
+<div class="box hidden" id="home">
+
+<h2>Welcome</h2>
+
+<button onclick="openTcheru()">Tcheru (Disaster & Weather)</button>
+
+<button onclick="openMlimi()">Mlimi Otchakuka (Farming)</button>
+
+</div>
+
+<!-- TCHERU -->
+<div class="box hidden" id="tcheru">
+
+<h3>Tcheru</h3>
+
+<select id="city">
+
+<option>Blantyre</option>
+<option>Lilongwe</option>
+<option>Mzuzu</option>
+<option>Zomba</option>
+<option>Kasungu</option>
+
+</select>
+
+<button onclick="checkWeather()">Check Weather</button>
+
+<div id="weatherResult"></div>
+
+<button class="alt" onclick="back()">Back</button>
+
+</div>
+
+<!-- MLIMI -->
+<div class="box hidden" id="mlimi">
+
+<h3>Mlimi Otchakuka</h3>
+
+<div class="grid">
+
+<button onclick="cropAdvice('Maize')">Maize</button>
+<button onclick="cropAdvice('Rice')">Rice</button>
+<button onclick="cropAdvice('Tobacco')">Tobacco</button>
+<button onclick="cropAdvice('Cotton')">Cotton</button>
+<button onclick="cropAdvice('Groundnuts')">Groundnuts</button>
+<button onclick="cropAdvice('Soybeans')">Soybeans</button>
+<button onclick="cropAdvice('Cassava')">Cassava</button>
+<button onclick="cropAdvice('Sorghum')">Sorghum</button>
+<button onclick="cropAdvice('Beans')">Beans</button>
+<button onclick="cropAdvice('Sunflower')">Sunflower</button>
+
+</div>
+
+<div id="advice"></div>
+
+<button class="alt" onclick="back()">Back</button>
 
 </div>
 
 <script>
 
-/* OFFLINE WEATHER ENGINE */
+let WEATHER={
 
-const weatherData = {
-
-Blantyre:{temp:28, condition:"Sunny"},
-Lilongwe:{temp:24, condition:"Cloudy"},
-Mzuzu:{temp:22, condition:"Rain"},
-Zomba:{temp:23, condition:"Rain"},
-Kasungu:{temp:25, condition:"Sunny"},
-Mangochi:{temp:30, condition:"Hot"},
-Salima:{temp:29, condition:"Hot"},
-Nkhotakota:{temp:27, condition:"Cloudy"},
-Karonga:{temp:31, condition:"Hot"},
-Nsanje:{temp:33, condition:"Flood Risk"}
+Blantyre:{temp:29,risk:"SAFE"},
+Lilongwe:{temp:32,risk:"HEAT"},
+Mzuzu:{temp:24,risk:"SAFE"},
+Zomba:{temp:26,risk:"FLOOD"},
+Kasungu:{temp:30,risk:"WARNING"}
 
 };
 
-/* LOGIN */
-
 function login(){
 
-let name=document.getElementById("name").value;
-let pass=document.getElementById("password").value;
-let district=document.getElementById("district").value;
+let n=name.value;
+let p=password.value;
 
-if(name==""||pass==""||district==""){
-alert("Fill all fields");
+if(n==""||p==""){
+
+alert("Enter name and password");
 return;
-}
-
-localStorage.setItem("district",district);
-
-document.getElementById("loginPage").style.display="none";
-document.getElementById("dashboard").style.display="block";
-
-loadWeather();
 
 }
 
-/* LOAD WEATHER */
-
-function loadWeather(){
-
-let district=localStorage.getItem("district");
-
-let data=weatherData[district];
-
-document.getElementById("weather").innerHTML=
-"District: "+district+
-"<br>Temperature: "+data.temp+"°C"+
-"<br>Condition: "+data.condition;
-
-/* disaster detection */
-
-if(data.condition=="Rain"||data.condition=="Flood Risk"){
-
-document.getElementById("disaster").innerHTML=
-"⚠ Disaster Warning: Possible Flooding";
+loginPage.classList.add("hidden");
+home.classList.remove("hidden");
 
 }
+
+function openTcheru(){
+
+home.classList.add("hidden");
+tcheru.classList.remove("hidden");
+
+}
+
+function openMlimi(){
+
+home.classList.add("hidden");
+mlimi.classList.remove("hidden");
+
+}
+
+function back(){
+
+home.classList.remove("hidden");
+tcheru.classList.add("hidden");
+mlimi.classList.add("hidden");
+
+}
+
+function checkWeather(){
+
+let c=city.value;
+
+let w=WEATHER[c];
+
+let msg="";
+
+if(w.risk=="SAFE"){
+
+msg=`<div class="safe">
+Temperature: ${w.temp}°C<br>
+Safe conditions
+</div>`;
+
+}
+
+else if(w.risk=="HEAT"){
+
+msg=`<div class="warn">
+Temperature: ${w.temp}°C<br>
+Heat warning
+</div>`;
+
+}
+
+else if(w.risk=="FLOOD"){
+
+msg=`<div class="danger">
+Temperature: ${w.temp}°C<br>
+Flood risk. Move to safe area.
+</div>`;
+
+}
+
 else{
 
-document.getElementById("disaster").innerHTML=
-"Safe conditions";
+msg=`<div class="warn">
+Temperature: ${w.temp}°C<br>
+Weather warning
+</div>`;
 
 }
 
-}
-
-/* FARMING ADVICE ENGINE */
-
-function showAdvice(crop){
-
-let district=localStorage.getItem("district");
-
-let weather=weatherData[district].condition;
-
-let advice="";
-
-if(crop=="Maize"){
-
-if(weather=="Rain")
-advice="Good time to plant maize";
-
-else if(weather=="Sunny")
-advice="Irrigate maize field";
-
-else if(weather=="Hot")
-advice="Water maize frequently";
+weatherResult.innerHTML=msg;
 
 }
 
-if(crop=="Rice"){
+function cropAdvice(crop){
 
-if(weather=="Rain")
-advice="Perfect for rice farming";
+let c=city.value||"Blantyre";
 
-else
-advice="Ensure enough water supply";
+let w=WEATHER[c];
 
-}
+let text="";
 
-if(crop=="Beans"){
+if(w.risk=="FLOOD"){
 
-if(weather=="Rain")
-advice="Beans growing conditions good";
-
-else
-advice="Water beans regularly";
+text="Flood risk. Delay planting.";
 
 }
 
-if(crop=="Groundnuts"){
+else if(w.risk=="HEAT"){
 
-if(weather=="Sunny")
-advice="Harvest groundnuts";
-
-else
-advice="Monitor soil moisture";
+text="Heat risk. Irrigate frequently.";
 
 }
 
-if(crop=="Cassava"){
+else{
 
-advice="Cassava grows well in most conditions";
+text="Good conditions. Safe to plant.";
 
 }
 
-document.getElementById("advice").innerHTML=advice;
+advice.innerHTML=`
+<div class="safe">
+<b>${crop}</b><br>
+${text}
+</div>
+`;
 
 }
 
