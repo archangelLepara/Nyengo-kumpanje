@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Malawi Smart Agriculture & Disaster System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+margin:0;
+background:#0b1520;
+color:white;
+}
+
+/* LOGIN PAGE */
+
+.login-container{
+display:flex;
+height:100vh;
+}
+
+.login-left{
+flex:1;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#111;
+}
+
+.login-box{
+background:#1a2a3a;
+padding:30px;
+border-radius:10px;
+width:300px;
+}
+
+.login-box input, select{
+width:100%;
+padding:10px;
+margin-top:10px;
+border:none;
+border-radius:5px;
+}
+
+.login-box button{
+width:100%;
+padding:12px;
+margin-top:15px;
+background:#00c853;
+color:white;
+border:none;
+font-weight:bold;
+cursor:pointer;
+}
+
+.login-right{
+flex:1;
+background:url('malawi.jpg') center/cover no-repeat;
+}
+
+/* DASHBOARD */
+
+.dashboard{
+display:none;
+}
+
+header{
+background:#00c853;
+padding:15px;
+font-size:20px;
+}
+
+.container{
+padding:20px;
+}
+
+.card{
+background:#1a2a3a;
+padding:20px;
+margin-top:15px;
+border-radius:10px;
+}
+
+button{
+padding:10px;
+background:#00c853;
+color:white;
+border:none;
+cursor:pointer;
+margin-top:10px;
+}
+
+/* crops */
+
+.crop{
+padding:10px;
+margin:5px;
+background:#263645;
+cursor:pointer;
+}
+
+.crop:hover{
+background:#00c853;
+}
+
+</style>
+
+</head>
+<body>
+
+<!-- LOGIN -->
+
+<div class="login-container" id="loginPage">
+
+<div class="login-left">
+
+<div class="login-box">
+
+<h2>Login</h2>
+
+<input type="text" id="name" placeholder="Enter your name">
+
+<input type="password" id="password" placeholder="Enter password">
+
+<select id="district">
+
+<option value="">Select District</option>
+
+<option>Blantyre</option>
+<option>Lilongwe</option>
+<option>Mzuzu</option>
+<option>Zomba</option>
+<option>Kasungu</option>
+<option>Mangochi</option>
+<option>Salima</option>
+<option>Nkhotakota</option>
+<option>Karonga</option>
+<option>Nsanje</option>
+
+</select>
+
+<button onclick="login()">Login</button>
+
+</div>
+
+</div>
+
+<div class="login-right"></div>
+
+</div>
+
+<!-- DASHBOARD -->
+
+<div class="dashboard" id="dashboard">
+
+<header>
+Malawi Smart Agriculture & Disaster System
+</header>
+
+<div class="container">
+
+<div class="card">
+<h3>Current Weather</h3>
+<p id="weather"></p>
+<p id="disaster"></p>
+</div>
+
+<div class="card">
+
+<h3>Select Crop</h3>
+
+<div class="crop" onclick="showAdvice('Maize')">Maize</div>
+<div class="crop" onclick="showAdvice('Rice')">Rice</div>
+<div class="crop" onclick="showAdvice('Beans')">Beans</div>
+<div class="crop" onclick="showAdvice('Groundnuts')">Groundnuts</div>
+<div class="crop" onclick="showAdvice('Cassava')">Cassava</div>
+
+</div>
+
+<div class="card">
+
+<h3>Farming Advice</h3>
+<p id="advice">Select crop to see advice</p>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* OFFLINE WEATHER ENGINE */
+
+const weatherData = {
+
+Blantyre:{temp:28, condition:"Sunny"},
+Lilongwe:{temp:24, condition:"Cloudy"},
+Mzuzu:{temp:22, condition:"Rain"},
+Zomba:{temp:23, condition:"Rain"},
+Kasungu:{temp:25, condition:"Sunny"},
+Mangochi:{temp:30, condition:"Hot"},
+Salima:{temp:29, condition:"Hot"},
+Nkhotakota:{temp:27, condition:"Cloudy"},
+Karonga:{temp:31, condition:"Hot"},
+Nsanje:{temp:33, condition:"Flood Risk"}
+
+};
+
+/* LOGIN */
+
+function login(){
+
+let name=document.getElementById("name").value;
+let pass=document.getElementById("password").value;
+let district=document.getElementById("district").value;
+
+if(name==""||pass==""||district==""){
+alert("Fill all fields");
+return;
+}
+
+localStorage.setItem("district",district);
+
+document.getElementById("loginPage").style.display="none";
+document.getElementById("dashboard").style.display="block";
+
+loadWeather();
+
+}
+
+/* LOAD WEATHER */
+
+function loadWeather(){
+
+let district=localStorage.getItem("district");
+
+let data=weatherData[district];
+
+document.getElementById("weather").innerHTML=
+"District: "+district+
+"<br>Temperature: "+data.temp+"°C"+
+"<br>Condition: "+data.condition;
+
+/* disaster detection */
+
+if(data.condition=="Rain"||data.condition=="Flood Risk"){
+
+document.getElementById("disaster").innerHTML=
+"⚠ Disaster Warning: Possible Flooding";
+
+}
+else{
+
+document.getElementById("disaster").innerHTML=
+"Safe conditions";
+
+}
+
+}
+
+/* FARMING ADVICE ENGINE */
+
+function showAdvice(crop){
+
+let district=localStorage.getItem("district");
+
+let weather=weatherData[district].condition;
+
+let advice="";
+
+if(crop=="Maize"){
+
+if(weather=="Rain")
+advice="Good time to plant maize";
+
+else if(weather=="Sunny")
+advice="Irrigate maize field";
+
+else if(weather=="Hot")
+advice="Water maize frequently";
+
+}
+
+if(crop=="Rice"){
+
+if(weather=="Rain")
+advice="Perfect for rice farming";
+
+else
+advice="Ensure enough water supply";
+
+}
+
+if(crop=="Beans"){
+
+if(weather=="Rain")
+advice="Beans growing conditions good";
+
+else
+advice="Water beans regularly";
+
+}
+
+if(crop=="Groundnuts"){
+
+if(weather=="Sunny")
+advice="Harvest groundnuts";
+
+else
+advice="Monitor soil moisture";
+
+}
+
+if(crop=="Cassava"){
+
+advice="Cassava grows well in most conditions";
+
+}
+
+document.getElementById("advice").innerHTML=advice;
+
+}
+
+</script>
+
+</body>
+</html>
